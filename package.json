@@ -1,0 +1,23 @@
+{
+  "name": "bucklespring",
+  "version": "0.1.0",
+  "description": "An experimental library for interacting with Notion content as an MDAST",
+  "main": "src/parser.js",
+  "author": "Alex Wilson <alex@alexwilson.tech>",
+  "license": "ISC",
+  "dependencies": {
+    "camelcase": "^6.0.0",
+    "date-fns": "^2.15.0",
+    "date-fns-tz": "^1.0.10",
+    "is-url": "^1.2.4",
+    "js-yaml": "^3.14.0",
+    "remark-frontmatter": "^2.0.0",
+    "remark-parse": "^8.0.3",
+    "remark-stringify": "^8.1.1",
+    "unified": "^9.1.0",
+    "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "node-fetch": "^2.6.0"
+  }
+}
