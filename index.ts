@@ -1,23 +1,14 @@
 const os = require('os')
-const fetch = require('node-fetch')
 const unified = require('unified')
-const uuid = require('uuid')
 const frontMatter = require('remark-frontmatter')
 const serializeMarkdown = require('remark-stringify')
 
-const {notionParser} = require('./src/parser')
+import { createAgent } from 'notionapi-agent'
+import { notionToMdast } from './src/parser' 
 
-const pageById = async (pageId, token) => {
-    const notionFetch = (resource, query) => fetch(`https://www.notion.so/api/v3/${resource}`, {
-        method: "POST",
-        body: JSON.stringify(query),
-        headers: {
-            "Content-Type": "application/json",
-            "Cookie": `token_v2=${token}`
-        }
-    }).then(res => res.json())
-
-    const page = await notionFetch('loadPageChunk', {
+const notionToMarkdown = async (pageId: string) => {
+    const agent = createAgent({token: process.env.NOTION_TOKEN})
+    const page = await agent.loadPageChunk({
         pageId,
         limit: 99999,
         cursor: {
@@ -26,20 +17,13 @@ const pageById = async (pageId, token) => {
         chunkNumber: 0,
         verticalColumns: false
     })
+    const notionPage = JSON.stringify(page)
 
-    return page
-}
-
-const notionToMarkdown = async pageId => {
-    const notionTest = JSON.stringify(await pageById(
-        pageId,
-        process.env.NOTION_TOKEN
-    ))
     const tree = unified()
-        .use(notionParser)
+        .use(notionToMdast)
         .use(serializeMarkdown)
         .use(frontMatter)
-        .process(notionTest)
+        .process(notionPage)
     
     console.log((await tree).toString(), os.EOL, os.EOL)
 }
