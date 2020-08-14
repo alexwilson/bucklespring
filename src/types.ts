@@ -24,3 +24,8 @@ export interface PageChunk {
     cursor: Cursor,
     recordMap: RecordMap
 }
+
+export type pageBlockSchema = {[key: string]: {
+    type: string,
+    name: string
+}}
