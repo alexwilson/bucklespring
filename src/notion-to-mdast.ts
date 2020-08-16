@@ -1,6 +1,6 @@
-import  {Plugin } from 'unified'
-import { Root } from 'mdast'
-import type { Block, SemanticString, NotionUser } from 'notionapi-agent/dist/interfaces'
+import  { Plugin } from 'unified'
+import { Root, Content } from 'mdast'
+import type { Block } from 'notionapi-agent/dist/interfaces'
 import type { BlockRecord } from 'notionapi-agent/dist/interfaces/notion-api/v3/Record'
 import u from 'unist-builder'
 import type { PageChunk, RecordMap } from './types'
@@ -8,48 +8,57 @@ import Converter from './converter'
 import { ConverterInterface } from './converter/converter-interface'
 
 type Options = {
-    converters?: ConverterInterface[]
+    converters?: ConverterInterface[],
+    withBlockFormat?: boolean,
+    withBlockType?: boolean,
+    type: 'recordMap'
 }
-function notionToMdast(options: Options = {}) {
+const defaultOptions: Options = {
+    withBlockFormat: true,
+    withBlockType: true,
+    type: 'recordMap'
+}
+
+export function notionToMdast(options: Options = defaultOptions) {    
+    const configuration = Object.assign({}, options, defaultOptions)
     this.Parser = parser
 
+    const documentType = configuration.type
     const converter = new Converter()
-    if (options.converters) {
-        options.converters.forEach(converter.addConverter)
+    if (configuration.converters) {
+        configuration.converters.forEach(converter.addConverter)
     }
 
     function parser(doc: string): Root {
-        const pageChunk = JSON.parse(doc) as PageChunk
-        const { recordMap, recordMap: { block } } = pageChunk
+        const document = JSON.parse(doc) as PageChunk
 
-        const blocks: Block[] = []
-        
-        // If this page is part of a database/collection, it has a Page record
-        const pageBlock: {value: Block.Page}|undefined = Object.values(block).find(
-                ({value: {alive, type}}: BlockRecord) => (alive === true && type === 'page')
-        ) as {value: Block.Page}|undefined
+        let recordMap: RecordMap
+        let blocks: Block[]
 
-        // Populate the blocks in this page.
-        if (pageBlock && pageBlock.value && pageBlock.value.content) {
-            // When this page is in a database, we reference the blocks belonging to the current page
-            blocks.push(
-                pageBlock.value,
-                ...pageBlock.value.content.map((id: string) => block[id].value)
-            )
-        } else {
-            // Otherwise we use every block
-            blocks.push(
-                ...Object.values(block).map(b => b.value).filter(b => b.alive === true)
-            )
+        switch(documentType) {
+            case 'recordMap': {
+                recordMap = document.recordMap
+                blocks = blocksFromRecordMap(recordMap)
+                break
+            }
         }
 
         // Begin MDAST
         const tree: Root = u('root', [])
 
         // Push nodes into the root-node.
-        let previousNode
-        for (const currentBlock of blocks) {
-            const newNode = converter.toMdastNode(currentBlock, previousNode, recordMap)
+        let previousNode = Object.create(null) as Content
+        for (const block of blocks) {
+
+            const newNode = converter.toMdastNode(block, previousNode, recordMap)
+
+            if (options.withBlockFormat !== false) {
+                newNode._blockFormat = block.format
+            }
+
+            if (options.withBlockType !== false) {
+                newNode._blockType = block.type
+            }
 
             // Allow nodes to interact with their predecessor sibling
             if (newNode !== previousNode) {
@@ -62,4 +71,27 @@ function notionToMdast(options: Options = {}) {
     }
 }
 
-export {notionToMdast}
+function blocksFromRecordMap(recordMap: RecordMap): Block[] {
+    let blocks: Block[]
+
+    // Find all "Alive" blocks in RecordMap
+    blocks = Object
+        .values(recordMap.block)
+        .map(({value}: BlockRecord) => value)
+        .filter(({alive}) => alive === true)
+        
+    // If this page is part of a database/collection, it has a Page record
+    // which we use to scope blocks to *only* the current page.
+    const pageBlock: Block.Page|undefined = blocks.find(
+            ({alive, type}: Block) => (type === 'page' && alive === true)
+    ) as Block.Page|undefined
+    if (pageBlock && pageBlock.content) {
+        // When this page is in a database, we reference the blocks belonging to the current page
+        blocks = [
+            pageBlock,
+            ...blocks.filter((block: Block) => pageBlock.content.includes(block.id))
+        ]
+    }
+
+    return blocks
+}
