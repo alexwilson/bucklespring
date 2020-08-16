@@ -1,6 +1,6 @@
 import type { ConverterInterface } from './converter-interface'
 import type { Block } from 'notionapi-agent/dist/interfaces'
-import type { Content, Blockquote, Paragraph } from 'mdast'
+import type { Content, Blockquote, Paragraph, Text } from 'mdast'
 import u from 'unist-builder'
 import { parseTextBlock } from './text'
 
@@ -16,8 +16,17 @@ export default class Quote implements ConverterInterface {
 
     toMdastNode(block: Block.Quote|Block.Callout): Blockquote {
         const text = ('properties' in block && 'title' in block.properties) ? parseTextBlock(block.properties.title) : []
-        return u('blockquote', [
+
+        if ((block as Block.Callout).type === 'callout') {
+            if (block.format.page_icon) {
+                text.unshift(u('text', `${block.format.page_icon} `))
+            }
+        }
+
+        const blockquote = u('blockquote', [
             u('paragraph', text) as Paragraph
         ]) as Blockquote
+        blockquote.blockType = block.type
+        return blockquote
     }
 }
