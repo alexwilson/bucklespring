@@ -1,0 +1,21 @@
+name: NPM Publish
+on:
+  release:
+    types: [created]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+    - run: npm ci
+    - run: npm test
+    - name: Get this tag
+      id: version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+    - name: Write the tag to package.json
+      run: npm version --no-git-tag-version ${{ steps.version.outputs.VERSION }}
+    - name: npm publish
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
