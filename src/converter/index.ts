@@ -13,30 +13,38 @@ import Image from './image'
 import Code from './code'
 import Quote from './quote'
 
-const converters: ConverterInterface[] = [
-    new Page(),
-    new InlineTable(),
-    new Video(),
-    new Image(),
-    new List(),
-    new Divider(),
-    new Heading(),
-    new Quote(),
-    new Code(),
-    new Text()
-]
-
 export default class Converter implements ConverterInterface {
+    private converters: ConverterInterface[]
+
+    constructor() {
+        this.converters = [
+            new Page(),
+            new InlineTable(),
+            new Video(),
+            new Image(),
+            new List(),
+            new Divider(),
+            new Heading(),
+            new Quote(),
+            new Code(),
+            new Text()
+        ]
+    }
+
+    addConverter(converter: ConverterInterface) {
+        this.converters.unshift(converter)
+    }
+
     supportsNotionBlock(block: Block): block is Block {
-        return converters.filter(converter => converter.supportsNotionBlock(block)).length > 0
+        return this.converters.filter(converter => converter.supportsNotionBlock(block)).length > 0
     }
 
     supportsMdastNode(node: Content): node is Content {
-        return converters.filter(converter => converter.supportsMdastNode(node)).length > 0
+        return this.converters.filter(converter => converter.supportsMdastNode(node)).length > 0
     }
 
     toMdastNode(block: Block, previousNode: Content, recordMap: RecordMap): Content {
-        let converter = converters
+        let converter = this.converters
             .find(converter => converter.supportsNotionBlock(block))
         
         if (!converter) {
@@ -44,7 +52,7 @@ export default class Converter implements ConverterInterface {
 
             const textBlock = <Block.Text>block
             textBlock.type = "text"
-            converter = converters.find(converter => converter.supportsNotionBlock(textBlock))
+            converter = this.converters.find(converter => converter.supportsNotionBlock(textBlock))
         }
         
         return converter.toMdastNode(<Block>block, previousNode, recordMap)

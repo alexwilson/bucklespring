@@ -5,9 +5,18 @@ import type { BlockRecord } from 'notionapi-agent/dist/interfaces/notion-api/v3/
 import u from 'unist-builder'
 import type { PageChunk, RecordMap } from './types'
 import Converter from './converter'
+import { ConverterInterface } from './converter/converter-interface'
 
-function notionToMdast() {
+type Options = {
+    converters?: ConverterInterface[]
+}
+function notionToMdast(options: Options = {}) {
     this.Parser = parser
+
+    const converter = new Converter()
+    if (options.converters) {
+        options.converters.forEach(converter.addConverter)
+    }
 
     function parser(doc: string): Root {
         const pageChunk = JSON.parse(doc) as PageChunk
@@ -36,7 +45,6 @@ function notionToMdast() {
 
         // Begin MDAST
         const tree: Root = u('root', [])
-        const converter = new Converter()
 
         // Push nodes into the root-node.
         let previousNode
