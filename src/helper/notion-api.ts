@@ -1,10 +1,24 @@
 import { createAgent } from 'notionapi-agent'
 import { Block } from 'notionapi-agent/dist/interfaces'
-import type { PageChunk } from './types'
+import type { PageChunk } from '../types'
 
-export async function getNotionCollection(collectionId: string, collectionViewId: string): Promise<string[]> {
+type Options = {
+    notionToken?: string
+}
+const getToken = (options: Options): string|undefined => {
+    if (options.notionToken) {
+        return options.notionToken
+    }
+    if (process && process.env && process.env.NOTION_TOKEN) {
+        return process.env.NOTION_TOKEN
+    }
 
-    const agent = createAgent({token: process.env.NOTION_TOKEN})
+    return undefined
+}
+
+export async function getNotionCollection(collectionId: string, collectionViewId: string, options: Options = {}): Promise<string[]> {
+
+    const agent = createAgent({token: getToken(options)})
     const collection = await agent.queryCollection({
         collectionId,
         collectionViewId,
@@ -15,15 +29,15 @@ export async function getNotionCollection(collectionId: string, collectionViewId
             limit: 99999,
             loadContentCover: false,
             type: "table",
-            userTimeZone: "",
+            userTimeZone: "UTC",
             userLocale: ""
         }
     })
     return collection.result.blockIds
 }
 
-export async function getNotionPage(pageId: string): Promise<PageChunk> {
-    const agent = createAgent({token: process.env.NOTION_TOKEN})
+export async function getNotionPage(pageId: string, options: Options = {}): Promise<PageChunk> {
+    const agent = createAgent({token: getToken(options)})
     const page = await agent.loadPageChunk({
         pageId,
         limit: 99999,

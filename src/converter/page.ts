@@ -4,7 +4,7 @@ import type { Content, YAML } from 'mdast'
 import type { RecordMap, pageBlockSchema } from '../types'
 import { formatISO } from 'date-fns'
 import yaml from 'js-yaml'
-import { zonedTimeToUtc } from 'date-fns-tz'
+import { zonedTimeToUtc, format } from 'date-fns-tz'
 import isUrl from 'is-url'
 import { validate as isUuid } from 'uuid'
 import camelCase from 'camelcase'
@@ -125,7 +125,7 @@ export function parsePageBlock(
                                 date.push(dateTime.start_date)
                             }
     
-                            const normalizedTime = zonedTimeToUtc(date.join(' '), dateTime.time_zone || "UTC")
+                            const normalizedTime = zonedTimeToUtc(date.join('T'), dateTime.time_zone || "UTC")
         
                             metadata[name] = formatISO(normalizedTime)
                         } else {

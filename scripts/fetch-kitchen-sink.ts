@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import {getNotionPage} from '../src/notion-api-helper'
+import {getNotionPage} from '../src/helper/notion-api'
 import {v4} from 'uuid'
 
 const anonymiseEmails = (doc: string): string => {
