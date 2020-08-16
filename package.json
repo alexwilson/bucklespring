@@ -6,7 +6,7 @@
   "author": "Alex Wilson <alex@alexwilson.tech>",
   "license": "MIT",
   "scripts": {
-    "prepare": "tsc",
+    "prepare": "tsc --skipLibCheck",
     "pretest": "ts-node scripts/fetch-kitchen-sink",
     "test": "jest --forceExit --runInBand --detectOpenHandles"
   },
