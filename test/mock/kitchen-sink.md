@@ -3,8 +3,8 @@ pageIcon: "\U0001F38F"
 pageCover: /images/page-cover/nasa_fingerprints_of_water_on_the_sand.jpg
 pageCoverPosition: '0.4'
 title: Kitchen Sink
-createdAt: '2020-08-14T21:57:00+03:00'
-editedAt: '2020-08-14T22:41:00+03:00'
+createdAt: '2020-08-14T18:57:00Z'
+editedAt: '2020-08-14T19:41:00Z'
 
 ---
 
@@ -36,9 +36,9 @@ culpa qui officia deserunt mollit anim id est laborum.
 
 
 
-| Name             | Test                      | Number  |
-| ---------------- | ------------------------- | ------- |
-| Test             | 2020-08-19T03:00:00+03:00 | 5432    |
-| Another test     | 2020-08-23T03:00:00+03:00 | 1       |
-| Yet Another Test | 2020-07-29T03:00:00+03:00 | 4543543 |
-|                  | 2020-09-05T03:00:00+03:00 | 123215  |
+| Name             | Test                 | Number  |
+| ---------------- | -------------------- | ------- |
+| Test             | 2020-08-19T00:00:00Z | 5432    |
+| Another test     | 2020-08-23T00:00:00Z | 1       |
+| Yet Another Test | 2020-07-29T00:00:00Z | 4543543 |
+|                  | 2020-09-05T00:00:00Z | 123215  |
