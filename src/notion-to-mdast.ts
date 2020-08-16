@@ -95,3 +95,5 @@ function blocksFromRecordMap(recordMap: RecordMap): Block[] {
 
     return blocks
 }
+
+export default notionToMdast
