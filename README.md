@@ -48,7 +48,7 @@ npx bucklespring notion export-collection --dirname test --filename "[id].md" 53
 Simply put: Until Notion's full API rollout, a major version seems irresponsible as the unofficial API may change.
 However!  0.x.x versions are as stable as any other unofficial API client.
 
-### This seems like an awful lot of trouble to go to for a blog/<insert use-case here>!
+### This seems like an awful lot of trouble to go to for a blog/[insert use-case here]!
 I agree!
 Reading an abstract-syntax-tree (AST) is an important first-step in being able to render something from a CMS.
 Both more traditional CMSes and block-based CMSes use a process such as this one for rendering.
