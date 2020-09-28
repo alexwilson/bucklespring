@@ -24,7 +24,6 @@ const tree = await unified()
     .use(frontMatter)
     .process(notionPage)
 console.log(tree.toString())
-}
 ```
 
 ### Command-Line
